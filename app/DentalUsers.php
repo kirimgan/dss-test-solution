@@ -10,8 +10,8 @@ class DentalUsers extends Model
     public $guarded = ['id'];
     public $timestamps = false;
 
-    public function getLastUserData($userId)
+    public static function getLastUserData($userId)
     {
-        return $this::where('userid', $userId)->first();
+        return self::where('userid', $userId)->first();
     }
 }

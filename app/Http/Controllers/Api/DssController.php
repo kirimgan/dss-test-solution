@@ -11,6 +11,13 @@ class DssController extends Controller
 {
     const LOGOUT_TIME = 60*60;
 
+    protected $users;
+
+    public function __construct(DentalUsers $users)
+    {
+        $this->users = $users;
+    }
+
     /**
      * Display the specified resource.
      *
@@ -19,8 +26,7 @@ class DssController extends Controller
      */
     public function checkLogout($userId)
     {
-        $dentalUsers = new DentalUsers();
-        $user = $dentalUsers->getLastUserData($userId);
+        $user = $this->users->getLastUserData($userId);
 
         $lastAccessedTimestamp = strtotime($user->last_accessed_date);
         $currentTimestamp = time();

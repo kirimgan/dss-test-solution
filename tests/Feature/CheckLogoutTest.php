@@ -35,8 +35,8 @@ class CheckLogoutTest extends TestCase
 
         $response = $this->json('GET', '/api/dental-users/check-logout/' . $this->userId);
 
-        $response->assertJsonStructure([
-            'reset_time'
+        $response->assertJson([
+            'logout'=> true
         ]);
     }
 
@@ -54,8 +54,8 @@ class CheckLogoutTest extends TestCase
 
         $response = $this->json('GET', '/api/dental-users/check-logout/' . $this->userId);
 
-        $response->assertJson([
-            'logout' => true,
+        $response->assertJsonStructure([
+            'reset_time'
         ]);
     }
 
