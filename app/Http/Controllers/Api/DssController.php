@@ -17,9 +17,10 @@ class DssController extends Controller
      * @param string $userid
      * @return \Illuminate\Http\Response
      */
-    public function checkLogout($userid)
+    public function checkLogout($userId)
     {
-        $user = DentalUsers::where('userid', $userid)->first();
+        $dentalUsers = new DentalUsers();
+        $user = $dentalUsers->getLastUserData($userId);
 
         $lastAccessedTimestamp = strtotime($user->last_accessed_date);
         $currentTimestamp = time();

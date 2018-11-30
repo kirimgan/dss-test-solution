@@ -6,16 +6,34 @@ use Tests\TestCase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use App\DentalUsers;
+use Mockery;
 
 class CheckLogoutTest extends TestCase
 {
+
+    public $dentalUserMock;
+    public $userId = 'kirimgan';
+
+    public function setUp()
+    {
+        parent::setUp();
+
+        $this->dentalUserMock = Mockery::mock(DentalUsers::class);
+    }
+
     public function testResetTimeResponse()
     {
-        $user = factory(DentalUsers::class)->create();
+        $this->dentalUserMock->shouldReceive('getLastUserData')
+            ->with($this->userId)
+            ->once()
+            ->andReturn(factory(DentalUsers::class)->make([
+                'userid' => $this->userId,
+                'last_accessed_date' => date('Y-m-d H:i:s', strtotime('-1 hours'))
+            ]));
 
-        $response = $this->json('GET', '/api/dental-users/check-logout/' . $user->userid);
+        $this->app->instance(DentalUsers::class, $this->dentalUserMock);
 
-        $user->delete();
+        $response = $this->json('GET', '/api/dental-users/check-logout/' . $this->userId);
 
         $response->assertJsonStructure([
             'reset_time'
@@ -24,16 +42,25 @@ class CheckLogoutTest extends TestCase
 
     public function testLogoutResponse()
     {
-        $user = factory(DentalUsers::class)->create([
-            'last_accessed_date' => date('Y-m-d H:i:s', strtotime('-1 hours'))
-        ]);
+        $this->dentalUserMock->shouldReceive('getLastUserData')
+            ->with($this->userId)
+            ->once()
+            ->andReturn(factory(DentalUsers::class)->make([
+                'userid' => $this->userId,
+                'last_accessed_date' => date('Y-m-d H:i:s')
+            ]));
 
-        $response = $this->json('GET', '/api/dental-users/check-logout/' . $user->userid);
+        $this->app->instance(DentalUsers::class, $this->dentalUserMock);
 
-        $user->delete();
+        $response = $this->json('GET', '/api/dental-users/check-logout/' . $this->userId);
 
         $response->assertJson([
             'logout' => true,
         ]);
+    }
+
+    public function tearDown() {
+        parent::tearDown();
+        Mockery::close();
     }
 }
